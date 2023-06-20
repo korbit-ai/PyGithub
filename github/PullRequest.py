@@ -409,24 +409,24 @@ class PullRequest(github.GithubObject.CompletableGithubObject):
         """
         return self.create_review_comment(body, commit_id, path, position)
 
-    def create_review_comment(self, body, commit_id, path, position):
+    def create_review_comment(self, body, commit_id, path, line):
         """
         :calls: `POST /repos/{owner}/{repo}/pulls/{number}/comments <https://docs.github.com/en/rest/reference/pulls#review-comments>`_
         :param body: string
         :param commit_id: :class:`github.Commit.Commit`
         :param path: string
-        :param position: integer
+        :param line: integer
         :rtype: :class:`github.PullRequestComment.PullRequestComment`
         """
         assert isinstance(body, str), body
         assert isinstance(commit_id, github.Commit.Commit), commit_id
         assert isinstance(path, str), path
-        assert isinstance(position, int), position
+        assert isinstance(line, int), line
         post_parameters = {
             "body": body,
             "commit_id": commit_id._identity,
             "path": path,
-            "position": position,
+            "line": line,
         }
         headers, data = self._requester.requestJsonAndCheck(
             "POST", f"{self.url}/comments", input=post_parameters
