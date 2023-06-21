@@ -409,7 +409,7 @@ class PullRequest(github.GithubObject.CompletableGithubObject):
         """
         return self.create_review_comment(body, commit_id, path, position)
 
-    def create_review_comment(self, body, commit_id, path, line):
+    def create_review_comment(self, body, commit_id, path, line, start_line=github.GithubObject.NotSet, subject_type=github.GithubObject.NotSet):
         """
         :calls: `POST /repos/{owner}/{repo}/pulls/{number}/comments <https://docs.github.com/en/rest/reference/pulls#review-comments>`_
         :param body: string
@@ -422,12 +422,22 @@ class PullRequest(github.GithubObject.CompletableGithubObject):
         assert isinstance(commit_id, github.Commit.Commit), commit_id
         assert isinstance(path, str), path
         assert isinstance(line, int), line
+        assert start_line is github.GithubObject.NotSet or isinstance(start_line, int), start_line
+        assert subject_type is github.GithubObject.NotSet or isinstance(subject_type, str), subject_type
+
         post_parameters = {
             "body": body,
             "commit_id": commit_id._identity,
             "path": path,
             "line": line,
         }
+
+        if start_line is not github.GithubObject.NotSet:
+            post_parameters["start_line"] = start_line
+        if subject_type is not github.GithubObject.NotSet:
+            post_parameters["subject_type"] = subject_type
+            post_parameters.pop("line")
+            post_parameters["position"] = line
         headers, data = self._requester.requestJsonAndCheck(
             "POST", f"{self.url}/comments", input=post_parameters
         )
